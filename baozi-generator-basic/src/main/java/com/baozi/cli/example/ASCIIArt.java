@@ -9,7 +9,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "ASCIIArt", version = "ASCIIArt 1.0", mixinStandardHelpOptions = true)
 public class ASCIIArt implements Runnable {
 
-    @Option(names = {"-s", "--font-size"}, description = "Font size")
+    @Option(names = {"-s", "--font-size"}, description = "Font size", arity = "0..1", interactive = true, echo = true, prompt = "请输入")
     int fontSize = 19;
 
     @Parameters(paramLabel = "<word>", defaultValue = "Hello, picocli",
@@ -26,7 +26,7 @@ public class ASCIIArt implements Runnable {
     }
 
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new ASCIIArt()).execute(args);
+        int exitCode = new CommandLine(new ASCIIArt()).execute("-s");
         System.exit(exitCode);
     }
 }

@@ -18,20 +18,23 @@ import static com.baozi.generator.StaticGenerator.copyFilesByHutool;
  **/
 public class MainGenerator {
     public static void main(String[] args) throws TemplateException, IOException {
-        // 生成静态文件
-        String projectPath = System.getProperty("user.dir");
-        String srcPath = projectPath + File.separator + "samples" + File.separator + "acm-template";
-        String tarPath = projectPath;
-        copyFilesByHutool(srcPath, tarPath);
-
-        // 生成动态文件
-        String inputPath = projectPath + File.separator + "baozi-generator-basic" + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
-        String outputPath = projectPath + File.separator + "acm-template/src/com/yupi/acm/MainTemplate.java";
         MainTemplateConfig model = new MainTemplateConfig();
         model.setLoop(true);
         model.setAuthor("zwb");
         model.setOutputText("output result");
-        doGenerate(inputPath, outputPath, model);
 
+        doGenerate(model);
+    }
+
+    public static void doGenerate(Object model) throws TemplateException, IOException {
+        // 生成静态文件
+        String projectPath = System.getProperty("user.dir");
+        String parentPath = new File(projectPath).getParent();
+        String srcPath = parentPath + File.separator + "samples" + File.separator + "acm-template";
+        StaticGenerator.copyFilesByHutool(srcPath, parentPath);
+        // 生成动态文件
+        String inputPath = parentPath + File.separator + "baozi-generator-basic" + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
+        String outputPath = parentPath + File.separator + "acm-template/src/com/yupi/acm/MainTemplate.java";
+        DynamicGenerator.doGenerate(inputPath, outputPath, model);
     }
 }

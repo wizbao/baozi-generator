@@ -1,6 +1,6 @@
-package com.baozi.generator;
+package com.baozi.maker.generator.file;
 
-import com.baozi.model.MainTemplateConfig;
+import com.baozi.maker.model.DataModel;
 import freemarker.template.TemplateException;
 
 import java.io.File;
@@ -13,9 +13,9 @@ import java.io.IOException;
  * @date 2024/12/1 22:04
  * @since 2024.0.1
  **/
-public class MainGenerator {
+public class FileGenerator {
     public static void main(String[] args) throws TemplateException, IOException {
-        MainTemplateConfig model = new MainTemplateConfig();
+        DataModel model = new DataModel();
         model.setLoop(true);
         model.setAuthor("zwb");
         model.setOutputText("output result");
@@ -28,10 +28,10 @@ public class MainGenerator {
         String projectPath = System.getProperty("user.dir");
         String parentPath = new File(projectPath).getParent();
         String srcPath = parentPath + File.separator + "samples" + File.separator + "acm-template";
-        StaticGenerator.copyFilesByHutool(srcPath, parentPath);
+        StaticFileGenerator.copyFilesByHutool(srcPath, parentPath);
         // 生成动态文件
-        String inputPath = parentPath + File.separator + "baozi-generator-basic" + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
+        String inputPath = parentPath + File.separator + "baozi-generator-maker" + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
         String outputPath = parentPath + File.separator + "acm-template/src/com/yupi/acm/MainTemplate.java";
-        DynamicGenerator.doGenerate(inputPath, outputPath, model);
+        DynamicFileGenerator.doGenerate(inputPath, outputPath, model);
     }
 }

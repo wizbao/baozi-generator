@@ -1,7 +1,7 @@
-package com.baozi.generator;
+package com.baozi.maker.generator.file;
 
 import cn.hutool.core.io.FileUtil;
-import com.baozi.model.MainTemplateConfig;
+import com.baozi.maker.model.DataModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -16,13 +16,13 @@ import java.io.Writer;
  * @date 2024/12/1 21:12
  * @since 2024.0.1
  **/
-public class DynamicGenerator {
+public class DynamicFileGenerator {
 
     public static void main(String[] args) throws IOException, TemplateException {
         String projectPath = System.getProperty("user.dir");
-        String inputPath = projectPath + File.separator + "baozi-generator-basic" + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
-        String outputPath = projectPath + File.separator + "baozi-generator-basic" + File.separator + "MainTemplate.java";
-        MainTemplateConfig model = new MainTemplateConfig();
+        String inputPath = projectPath + File.separator + "baozi-generator-maker" + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
+        String outputPath = projectPath + File.separator + "baozi-generator-maker" + File.separator + "MainTemplate.java";
+        DataModel model = new DataModel();
         model.setLoop(false);
         model.setAuthor("zwb");
         model.setOutputText("sum");
@@ -39,7 +39,7 @@ public class DynamicGenerator {
      * @throws TemplateException
      */
     public static void doGenerate(String inputPath, String outputPath, Object model) throws IOException, TemplateException {
-        // String projectPath = System.getProperty("user.dir") + File.separator + "baozi-generator-basic";
+        // String projectPath = System.getProperty("user.dir") + File.separator + "baozi-generator-maker";
         // System.out.println(projectPath);
         // new 出 Configuration 对象，参数为 FreeMarker 版本号
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_32);

@@ -1,6 +1,6 @@
-package com.baozi.maker;
+package ${basePackage};
 
-import com.baozi.maker.cli.CommandExecutor;
+import ${basePackage}.cli.CommandExecutor;
 
 /**
  * @author zwb
@@ -10,9 +10,6 @@ import com.baozi.maker.cli.CommandExecutor;
 public class Main {
     public static void main(String[] args) {
         CommandExecutor executor = new CommandExecutor();
-        // args = new String[]{"list"};
-        // args = new String[]{"config"};
-        // args = new String[]{"generate","-l","-a","-o"};
         executor.doExecute(args);
     }
 }

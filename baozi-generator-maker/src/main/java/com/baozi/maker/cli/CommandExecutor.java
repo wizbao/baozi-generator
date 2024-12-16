@@ -1,5 +1,8 @@
-package com.baozi.maker.cli.command;
+package com.baozi.maker.cli;
 
+import com.baozi.maker.cli.command.ConfigCommand;
+import com.baozi.maker.cli.command.GenerateCommand;
+import com.baozi.maker.cli.command.ListCommand;
 import picocli.CommandLine;
 
 /**

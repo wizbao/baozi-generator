@@ -14,6 +14,6 @@ import java.io.File;
 public class ListCommand implements Runnable {
     @Override
     public void run() {
-        FileUtil.loopFiles(${fileConfig.inputRootPath}).forEach(System.out::println);
+        FileUtil.loopFiles("${fileConfig.inputRootPath}").forEach(System.out::println);
     }
 }

@@ -23,7 +23,7 @@ public class MainGenerator {
 
         // 输出根路径
         String projectPath = System.getProperty("user.dir");
-        String outputPath = projectPath + File.separator + meta.getFileConfig().getOutputRootPath() + File.separator + meta.getName();
+        String outputPath = projectPath + File.separator + "generated" + File.separator + meta.getName();
         if (!FileUtil.exist(outputPath)) {
             FileUtil.mkdir(outputPath);
         }
@@ -47,28 +47,52 @@ public class MainGenerator {
         // cli.command.ConfigCommand
         inputFilePath = inputResourcePath + File.separator + "templates/java/cli/command/ConfigCommand.java.ftl";
         outputFilePath = outputBaseJavaPackagePath + "/cli/command/ConfigCommand.java";
-        DynamicFileGenerator.doGenerate(inputFilePath , outputFilePath, meta);
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
 
         // cli.command.GenerateCommand
         inputFilePath = inputResourcePath + File.separator + "templates/java/cli/command/GenerateCommand.java.ftl";
         outputFilePath = outputBaseJavaPackagePath + "/cli/command/GenerateCommand.java";
-        DynamicFileGenerator.doGenerate(inputFilePath , outputFilePath, meta);
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
 
         // cli.command.ListCommand
         inputFilePath = inputResourcePath + File.separator + "templates/java/cli/command/ListCommand.java.ftl";
         outputFilePath = outputBaseJavaPackagePath + "/cli/command/ListCommand.java";
-        DynamicFileGenerator.doGenerate(inputFilePath , outputFilePath, meta);
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
 
         // cli.CommandExecutor
         inputFilePath = inputResourcePath + File.separator + "templates/java/cli/CommandExecutor.java.ftl";
         outputFilePath = outputBaseJavaPackagePath + "/cli/CommandExecutor.java";
-        DynamicFileGenerator.doGenerate(inputFilePath , outputFilePath, meta);
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
 
         // Main
         inputFilePath = inputResourcePath + File.separator + "templates/java/Main.java.ftl";
         outputFilePath = outputBaseJavaPackagePath + "/Main.java";
-        DynamicFileGenerator.doGenerate(inputFilePath , outputFilePath, meta);
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
 
+        // MainGenerator
+        inputFilePath = inputResourcePath + File.separator + "templates/java/generator/MainGenerator.java.ftl";
+        outputFilePath = outputBaseJavaPackagePath + "/generator/MainGenerator.java";
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
+
+        // DynamicGenerator.java.ftl
+        inputFilePath = inputResourcePath + File.separator + "templates/java/generator/DynamicGenerator.java.ftl";
+        outputFilePath = outputBaseJavaPackagePath + "/generator/DynamicGenerator.java";
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
+
+        // StaticGenerator.java.ftl
+        inputFilePath = inputResourcePath + File.separator + "templates/java/generator/StaticGenerator.java.ftl";
+        outputFilePath = outputBaseJavaPackagePath + "/generator/StaticGenerator.java";
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
+
+        // pom.xml.ftl
+        inputFilePath = inputResourcePath + File.separator + "templates/pom.xml.ftl";
+        outputFilePath = outputPath + "/pom.xml";
+        DynamicFileGenerator.doGenerate(inputFilePath, outputFilePath, meta);
+
+        // 封装脚本
+        outputFilePath = outputPath + File.separator + "generator";
+        String jarPath = String.format("target/%s-%s-jar-with-dependencies.jar", meta.getName(), meta.getVersion());
+        ScriptGenerator.doGenerate(outputFilePath, jarPath);
     }
 }
 

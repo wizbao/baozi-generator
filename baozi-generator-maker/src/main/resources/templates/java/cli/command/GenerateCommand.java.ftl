@@ -1,7 +1,7 @@
 package ${basePackage}.cli.command;
 
 import cn.hutool.core.bean.BeanUtil;
-import ${basePackage}.generator.file.FileGenerator;
+import ${basePackage}.generator.MainGenerator;
 import ${basePackage}.model.DataModel;
 import lombok.Data;
 import picocli.CommandLine;
@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
  * @since 2024.0.1
  **/
 @Data
-@CommandLine.Command(name = "generate", version = "GenerateCommand 1.0", mixinStandardHelpOptions = true)
+@CommandLine.Command(name = "generate", description = "生成模版文件", mixinStandardHelpOptions = true)
 public class GenerateCommand implements Callable<Integer> {
     <#list modelConfig.models as modelInfo>
     <#if modelInfo.description??>
@@ -31,7 +31,7 @@ public class GenerateCommand implements Callable<Integer> {
     public Integer call() throws Exception {
         DataModel dataModel = new DataModel();
         BeanUtil.copyProperties(this, dataModel);
-        FileGenerator.doGenerate(dataModel);
+        MainGenerator.doGenerate(dataModel);
         return 0;
     }
 }

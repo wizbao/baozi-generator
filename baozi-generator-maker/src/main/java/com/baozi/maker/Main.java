@@ -12,7 +12,7 @@ public class Main {
         CommandExecutor executor = new CommandExecutor();
         // args = new String[]{"list"};
         // args = new String[]{"config"};
-        // args = new String[]{"generate","-l","-a","-o"};
+        // args = new String[]{"generate","-l","-pom.xml.ftl","-o"};
         executor.doExecute(args);
     }
 }

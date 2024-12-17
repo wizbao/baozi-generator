@@ -1,7 +1,7 @@
-package com.baozi.maker.cli.command;
+package ${basePackage}.cli.command;
 
 import cn.hutool.core.util.ReflectUtil;
-import com.baozi.maker.model.DataModel;
+import ${basePackage}.model.DataModel;
 import picocli.CommandLine;
 
 import java.lang.reflect.Field;

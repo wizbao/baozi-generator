@@ -26,7 +26,7 @@ public class GenerateCommand implements Callable<Integer> {
     /**
      * 作者注释
      */
-    @CommandLine.Option(names = {"-a", "--author"}, description = "作者", interactive = true, arity = "0..1", echo = true)
+    @CommandLine.Option(names = {"-pom.xml.ftl", "--author"}, description = "作者", interactive = true, arity = "0..1", echo = true)
     private String author;
 
     /**

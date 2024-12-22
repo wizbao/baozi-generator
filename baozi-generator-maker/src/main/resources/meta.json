@@ -3,11 +3,12 @@
   "description": "ACM 示例模板生成器",
   "basePackage": "com.baozi",
   "version": "1.0",
-  "author": "yupi",
+  "author": "wizbao",
   "createTime": "2023-11-22",
   "fileConfig": {
-    "inputRootPath": "/Users/zhangxiao/Home/Projects/code-generator/baozi-generator/samples/acm-template",
+    "inputRootPath": ".source/acm-template",
     "outputRootPath": "generated",
+    "sourceRootPath": "/Users/zhangxiao/Home/Projects/code-generator/baozi-generator/samples/acm-template",
     "type": "dir",
     "files": [
       {

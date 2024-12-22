@@ -35,10 +35,10 @@ public class ScriptGenerator {
         }
 
         // Windows
-        // sb = new StrBuilder();
-        // sb.append("@echo off").append("\n");
-        // sb.append(String.format("java -jar %s %%*", jarPath)).append("\n");
-        // FileUtil.writeBytes(sb.toString().getBytes(StandardCharsets.UTF_8), outputPath + ".bat");
+        sb = new StrBuilder();
+        sb.append("@echo off").append("\n");
+        sb.append(String.format("java -jar %s %%*", jarPath)).append("\n");
+        FileUtil.writeBytes(sb.toString().getBytes(StandardCharsets.UTF_8), outputPath + ".bat");
 
     }
 

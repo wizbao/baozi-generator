@@ -55,20 +55,6 @@
         </dependency>
     </dependencies>
 
-
-    <repositories>
-        <repository>
-            <id>aliyun-mirror</id>
-            <name>aliyun-mirror</name>
-            <url>https://maven.aliyun.com/repository/central</url>
-        </repository>
-        <repository>
-            <id>alimaven</id>
-            <name>aliyun maven</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-
 <!--    打包带上依赖-->
     <build>
         <plugins>

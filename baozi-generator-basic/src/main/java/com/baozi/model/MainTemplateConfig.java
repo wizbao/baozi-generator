@@ -15,15 +15,15 @@ public class MainTemplateConfig {
     /**
      * 是否生成循环
      */
-    private boolean loop;
+    private boolean loop = true;
 
     /**
      * 作者注释
      */
-    private String author;
+    private String author = "aa";
 
     /**
      * 输出信息
      */
-    private String outputText;
+    private String outputText = "sum=";
 }

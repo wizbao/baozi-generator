@@ -1,6 +1,9 @@
 package com.baozi.maker;
 
-import com.baozi.maker.cli.CommandExecutor;
+import com.baozi.maker.generator.main.MainGenerator;
+import freemarker.template.TemplateException;
+
+import java.io.IOException;
 
 /**
  * @author zwb
@@ -8,11 +11,8 @@ import com.baozi.maker.cli.CommandExecutor;
  * @since 2024.0.1
  **/
 public class Main {
-    public static void main(String[] args) {
-        CommandExecutor executor = new CommandExecutor();
-        // args = new String[]{"list"};
-        // args = new String[]{"config"};
-        // args = new String[]{"generate","-l","-pom.xml.ftl","-o"};
-        executor.doExecute(args);
+    public static void main(String[] args) throws TemplateException, IOException, InterruptedException {
+        MainGenerator mainGenerator = new MainGenerator();
+        mainGenerator.doGenerate();
     }
 }

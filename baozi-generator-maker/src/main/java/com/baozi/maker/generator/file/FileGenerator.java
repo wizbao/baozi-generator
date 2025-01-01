@@ -1,6 +1,5 @@
 package com.baozi.maker.generator.file;
 
-import com.baozi.maker.model.DataModel;
 import freemarker.template.TemplateException;
 
 import java.io.File;
@@ -14,14 +13,6 @@ import java.io.IOException;
  * @since 2024.0.1
  **/
 public class FileGenerator {
-    public static void main(String[] args) throws TemplateException, IOException {
-        DataModel model = new DataModel();
-        model.setLoop(true);
-        model.setAuthor("zwb");
-        model.setOutputText("output result");
-
-        doGenerate(model);
-    }
 
     public static void doGenerate(Object model) throws TemplateException, IOException {
         // 生成静态文件

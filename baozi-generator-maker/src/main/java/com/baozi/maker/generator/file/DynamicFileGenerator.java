@@ -1,7 +1,6 @@
 package com.baozi.maker.generator.file;
 
 import cn.hutool.core.io.FileUtil;
-import com.baozi.maker.model.DataModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -17,17 +16,6 @@ import java.io.Writer;
  * @since 2024.0.1
  **/
 public class DynamicFileGenerator {
-
-    public static void main(String[] args) throws IOException, TemplateException {
-        String projectPath = System.getProperty("user.dir");
-        String inputPath = projectPath + File.separator + "baozi-generator-maker" + File.separator + "src/main/resources/templates/MainTemplate.java.ftl";
-        String outputPath = projectPath + File.separator + "baozi-generator-maker" + File.separator + "MainTemplate.java";
-        DataModel model = new DataModel();
-        model.setLoop(false);
-        model.setAuthor("zwb");
-        model.setOutputText("sum");
-        doGenerate(inputPath, outputPath, model);
-    }
 
     /**
      * 生成文件

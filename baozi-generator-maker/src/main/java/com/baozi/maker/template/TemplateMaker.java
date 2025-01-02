@@ -13,6 +13,7 @@ import com.baozi.maker.meta.enums.FileTypeEnum;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -30,13 +31,13 @@ public class TemplateMaker {
      *
      * @param newMeta
      * @param originProjectPath
-     * @param inputFilePath
+     * @param inputFilePathList
      * @param modelInfo
      * @param searchStr
      * @param id
      * @return
      */
-    public static long makeTemplate(Meta newMeta, String originProjectPath, String inputFilePath, Meta.ModelConfig.ModelInfo modelInfo, String searchStr, Long id) {
+    public static long makeTemplate(Meta newMeta, String originProjectPath, List<String> inputFilePathList, Meta.ModelConfig.ModelInfo modelInfo, String searchStr, Long id) {
         if (Objects.isNull(id)) {
             id = IdUtil.getSnowflakeNextId();
         }
@@ -50,36 +51,31 @@ public class TemplateMaker {
 
         // 输入信息
         String sourceRootPath = tempLatePath + File.separator + FileUtil.getLastPathEle(Paths.get(originProjectPath)).toString();
-        String fileInputPath = inputFilePath;
-        String fileOutputPath = fileInputPath + ".ftl";
-
 
         // 生成模版文件
-        String fileInputAbsolutePath = sourceRootPath + File.separator + fileInputPath;
-        String fileOutputAbsolutePath = sourceRootPath + File.separator + fileOutputPath;
-        String fileContent;
-        if (FileUtil.exist(fileOutputAbsolutePath)) {
-            fileContent = FileUtil.readUtf8String(fileOutputAbsolutePath);
-        } else {
-            fileContent = FileUtil.readUtf8String(fileInputAbsolutePath);
+        List<Meta.FileConfig.FileInfo> fileInfoList = new ArrayList<>();
+        for (String inputFilePath : inputFilePathList) {
+            String fileInputAbsolutePath = sourceRootPath + File.separator + inputFilePath;
+            if (FileUtil.isDirectory(fileInputAbsolutePath)) {
+                List<File> files = FileUtil.loopFiles(fileInputAbsolutePath);
+                for (File file : files) {
+                    Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, file, sourceRootPath);
+                    fileInfoList.add(fileInfo);
+                }
+            } else {
+                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, new File(fileInputAbsolutePath), sourceRootPath);
+                fileInfoList.add(fileInfo);
+            }
         }
-        String newFileContent = StrUtil.replace(fileContent, searchStr, String.format("${%s}", modelInfo.getFieldName()));
-        FileUtil.writeUtf8String(newFileContent, fileOutputAbsolutePath);
-
-        // 文件配置信息
-        Meta.FileConfig.FileInfo fileInfo = new Meta.FileConfig.FileInfo();
-        fileInfo.setType(FileTypeEnum.FILE.getValue());
-        fileInfo.setInputPath(fileInputPath);
-        fileInfo.setOutputPath(fileOutputPath);
-        fileInfo.setGenerateType(FileGenerateTypeEnum.DYNAMIC.getValue());
 
         // Meta输出路径
         String metaOutputPath = sourceRootPath + File.separator + "meta.json";
         if (FileUtil.exist(metaOutputPath)) {
             Meta oldMeta = JSONUtil.toBean(FileUtil.readUtf8String(metaOutputPath), Meta.class);
-            BeanUtil.copyProperties(newMeta, oldMeta,CopyOptions.create().ignoreNullValue());
+            BeanUtil.copyProperties(newMeta, oldMeta, CopyOptions.create().ignoreNullValue());
             newMeta = oldMeta;
-            newMeta.getFileConfig().getFiles().add(fileInfo);
+            // 追加配置
+            newMeta.getFileConfig().getFiles().addAll(fileInfoList);
             newMeta.getModelConfig().getModels().add(modelInfo);
 
             // 去重
@@ -92,19 +88,56 @@ public class TemplateMaker {
             Meta.FileConfig fileConfig = new Meta.FileConfig();
             newMeta.setFileConfig(fileConfig);
             fileConfig.setSourceRootPath(sourceRootPath);
-            List<Meta.FileConfig.FileInfo> fileInfoList = new ArrayList<>();
             fileConfig.setFiles(fileInfoList);
-            fileInfoList.add(fileInfo);
 
             Meta.ModelConfig modelConfig = new Meta.ModelConfig();
             newMeta.setModelConfig(modelConfig);
             List<Meta.ModelConfig.ModelInfo> modelInfoList = new ArrayList<>();
             modelConfig.setModels(modelInfoList);
             modelInfoList.add(modelInfo);
-
         }
         FileUtil.writeUtf8String(JSONUtil.toJsonPrettyStr(newMeta), metaOutputPath);
         return id;
+    }
+
+    /**
+     * 生成模版文件
+     *
+     * @param modelInfo
+     * @param searchStr
+     * @param file
+     * @param sourceRootPath
+     * @return
+     */
+    private static Meta.FileConfig.FileInfo makeFileTemplate(Meta.ModelConfig.ModelInfo modelInfo, String searchStr, File file, String sourceRootPath) {
+        String fileContent;
+        // 相对路径
+        String fileInputPath = file.getAbsolutePath().replace(sourceRootPath + "/", "");
+        String fileOutputPath = fileInputPath + ".ftl";
+
+        String fileInputAbsolutePath = sourceRootPath + File.separator + fileInputPath;
+        String fileOutputAbsolutePath = sourceRootPath + File.separator + fileOutputPath;
+        if (FileUtil.exist(fileOutputAbsolutePath)) {
+            fileContent = FileUtil.readUtf8String(fileOutputAbsolutePath);
+        } else {
+            fileContent = FileUtil.readUtf8String(fileInputAbsolutePath);
+        }
+        String newFileContent = StrUtil.replace(fileContent, searchStr, String.format("${%s}", modelInfo.getFieldName()));
+
+        Meta.FileConfig.FileInfo fileInfo = new Meta.FileConfig.FileInfo();
+        fileInfo.setType(FileTypeEnum.FILE.getValue());
+        fileInfo.setInputPath(fileInputPath);
+        if (Objects.equals(fileContent, newFileContent)) {
+            // 和原文件内容一致，说明没有挖坑，无需生成模版文件
+            fileInfo.setOutputPath(fileInputPath);
+            fileInfo.setGenerateType(FileGenerateTypeEnum.STATIC.getValue());
+        } else {
+            // 文件配置信息
+            fileInfo.setOutputPath(fileOutputPath);
+            fileInfo.setGenerateType(FileGenerateTypeEnum.DYNAMIC.getValue());
+            FileUtil.writeUtf8String(newFileContent, fileOutputAbsolutePath);
+        }
+        return fileInfo;
     }
 
     public static void main(String[] args) {
@@ -115,9 +148,10 @@ public class TemplateMaker {
         meta.setDescription(description);
 
         String projectPath = System.getProperty("user.dir");
-        String originProjectPath = new File(projectPath).getParent() + File.separator + "samples/acm-template-pro";
-        String fileInputPath = "src/com/yupi/acm/MainTemplate.java";
-
+        String originProjectPath = new File(projectPath).getParent() + File.separator + "samples/springboot-init-master";
+        // String fileInputPath = "src/main/java/com/yupi/springbootinit/controller";
+        String fileInputPath1 = "src/main/java/com/yupi/springbootinit/esdao";
+        String fileInputPath2 = "src/main/java/com/yupi/springbootinit/exception";
         // Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
         // modelInfo.setFieldName("outputText");
         // modelInfo.setType("String");
@@ -129,9 +163,9 @@ public class TemplateMaker {
         modelInfo.setFieldName("className");
         modelInfo.setType("String");
 
-        String searchStr = "MainTemplate";
+        String searchStr = "class";
 
-        long id = makeTemplate(meta, originProjectPath, fileInputPath, modelInfo, searchStr, 1874404666146377728L);
+        long id = makeTemplate(meta, originProjectPath, Arrays.asList(fileInputPath1,fileInputPath2), modelInfo, searchStr, 2L);
         System.out.println("id = " + id);
     }
 

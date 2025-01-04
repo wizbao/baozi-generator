@@ -9,6 +9,10 @@ import cn.hutool.json.JSONUtil;
 import com.baozi.maker.meta.Meta;
 import com.baozi.maker.meta.enums.FileGenerateTypeEnum;
 import com.baozi.maker.meta.enums.FileTypeEnum;
+import com.baozi.maker.template.enums.FileFilterRangeEnum;
+import com.baozi.maker.template.enums.FileFilterRuleEnum;
+import com.baozi.maker.template.model.FileFilterConfig;
+import com.baozi.maker.template.model.TemplateMakerFileConfig;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -31,13 +35,13 @@ public class TemplateMaker {
      *
      * @param newMeta
      * @param originProjectPath
-     * @param inputFilePathList
+     * @param templateMakerFileConfig
      * @param modelInfo
      * @param searchStr
      * @param id
      * @return
      */
-    public static long makeTemplate(Meta newMeta, String originProjectPath, List<String> inputFilePathList, Meta.ModelConfig.ModelInfo modelInfo, String searchStr, Long id) {
+    public static long makeTemplate(Meta newMeta, String originProjectPath, TemplateMakerFileConfig templateMakerFileConfig, Meta.ModelConfig.ModelInfo modelInfo, String searchStr, Long id) {
         if (Objects.isNull(id)) {
             id = IdUtil.getSnowflakeNextId();
         }
@@ -54,16 +58,15 @@ public class TemplateMaker {
 
         // 生成模版文件
         List<Meta.FileConfig.FileInfo> fileInfoList = new ArrayList<>();
-        for (String inputFilePath : inputFilePathList) {
-            String fileInputAbsolutePath = sourceRootPath + File.separator + inputFilePath;
-            if (FileUtil.isDirectory(fileInputAbsolutePath)) {
-                List<File> files = FileUtil.loopFiles(fileInputAbsolutePath);
-                for (File file : files) {
-                    Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, file, sourceRootPath);
-                    fileInfoList.add(fileInfo);
-                }
-            } else {
-                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, new File(fileInputAbsolutePath), sourceRootPath);
+        for (TemplateMakerFileConfig.FileInfoConfig fileInfoConfig : templateMakerFileConfig.getFiles()) {
+            String inputFilePath = fileInfoConfig.getPath();
+            // 如果是相对路径，要改为绝对路径
+            if (!inputFilePath.startsWith(sourceRootPath)) {
+                inputFilePath = sourceRootPath + File.separator + inputFilePath;
+            }
+            List<File> files = FileFilter.doFilter(fileInfoConfig.getFilterConfigList(), inputFilePath);
+            for (File file : files) {
+                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, file, sourceRootPath);
                 fileInfoList.add(fileInfo);
             }
         }
@@ -149,15 +152,25 @@ public class TemplateMaker {
 
         String projectPath = System.getProperty("user.dir");
         String originProjectPath = new File(projectPath).getParent() + File.separator + "samples/springboot-init-master";
-        // String fileInputPath = "src/main/java/com/yupi/springbootinit/controller";
+        // String fileInputPath = "src/main/java/com/yupi/springbootinit/annotation/AuthCheck.java";
         String fileInputPath1 = "src/main/java/com/yupi/springbootinit/esdao";
         String fileInputPath2 = "src/main/java/com/yupi/springbootinit/exception";
-        // Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
-        // modelInfo.setFieldName("outputText");
-        // modelInfo.setType("String");
-        // modelInfo.setDefaultValue("sum = ");
-        //
-        // String searchStr = "Sum: ";
+        TemplateMakerFileConfig templateMakerFileConfig = new TemplateMakerFileConfig();
+        TemplateMakerFileConfig.FileInfoConfig file1 = new TemplateMakerFileConfig.FileInfoConfig();
+        FileFilterConfig fileFilterConfig = FileFilterConfig.builder()
+                .range(FileFilterRangeEnum.FILE_NAME.getValue())
+                .rule(FileFilterRuleEnum.STARTS_WITH.getValue())
+                .value("Global")
+                .build();
+        file1.setPath(fileInputPath1);
+        file1.setFilterConfigList(Arrays.asList(fileFilterConfig));
+
+        TemplateMakerFileConfig.FileInfoConfig file2 = new TemplateMakerFileConfig.FileInfoConfig();
+        file2.setPath(fileInputPath2);
+        file2.setFilterConfigList(Arrays.asList(fileFilterConfig));
+
+        templateMakerFileConfig.setFiles(Arrays.asList(file1, file2));
+
 
         Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
         modelInfo.setFieldName("className");
@@ -165,7 +178,7 @@ public class TemplateMaker {
 
         String searchStr = "class";
 
-        long id = makeTemplate(meta, originProjectPath, Arrays.asList(fileInputPath1,fileInputPath2), modelInfo, searchStr, 2L);
+        long id = makeTemplate(meta, originProjectPath, templateMakerFileConfig, modelInfo, searchStr, 2L);
         System.out.println("id = " + id);
     }
 
@@ -176,13 +189,12 @@ public class TemplateMaker {
      * @return
      */
     private static List<Meta.FileConfig.FileInfo> distinctFiles(List<Meta.FileConfig.FileInfo> fileInfoList) {
-        List<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>(
+        return new ArrayList<>(
                 fileInfoList.stream()
                         .collect(
                                 Collectors.toMap(Meta.FileConfig.FileInfo::getInputPath, Function.identity(), (e, r) -> r)
                         ).values()
         );
-        return newFileInfoList;
     }
 
     /**
@@ -192,13 +204,12 @@ public class TemplateMaker {
      * @return
      */
     private static List<Meta.ModelConfig.ModelInfo> distinctModels(List<Meta.ModelConfig.ModelInfo> modelInfoList) {
-        List<Meta.ModelConfig.ModelInfo> newModelInfoList = new ArrayList<>(
+        return new ArrayList<>(
                 modelInfoList.stream()
                         .collect(
                                 Collectors.toMap(Meta.ModelConfig.ModelInfo::getFieldName, o -> o, (e, r) -> r)
                         ).values()
         );
-        return newModelInfoList;
     }
 
 
